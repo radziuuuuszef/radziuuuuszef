@@ -1,0 +1,26 @@
+name: Publish VintedGeek release asset
+
+on:
+  push:
+    branches:
+      - vintedgeek-upload-1-8-1
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recombine and verify the Windows archive
+        run: |
+          zip -s 0 upload/VintedGeek-Windows-x64-parts.zip --out VintedGeek-1.8.1-vintedgeek.1-x64.zip
+          echo "11ca196b8790f1b77871026d40e4b7c9e69cdea1d42daade2048919ff5c78cb6  VintedGeek-1.8.1-vintedgeek.1-x64.zip" | sha256sum -c -
+
+      - name: Upload the single release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload v1.8.1-vintedgeek.1 VintedGeek-1.8.1-vintedgeek.1-x64.zip --clobber
